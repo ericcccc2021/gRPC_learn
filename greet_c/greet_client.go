@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
 	"playground/greet_s/greet_s"
@@ -23,7 +25,34 @@ func main() {
 	c := greet_s.NewGreetServiceClient(cnn)
 	//doServiceStreaming(c)
 	//doClientStreaming(c)
-	doBiDirectionStreaming(c)
+	//doBiDirectionStreaming(c)
+	doError(c)
+}
+
+func doError(c greet_s.GreetServiceClient) {
+	res, err := c.SquareRoot(context.Background(), &greet_s.SquareRootRequest{Number: -80})
+	if err != nil {
+		resErr, ok := status.FromError(err)
+		if ok {
+			// actual error from gRPC, a purposed error
+			if resErr.Code() == codes.InvalidArgument {
+				fmt.Println("we probably sent a negative number")
+			}
+		} else {
+			log.Fatalf("error when calling SquareRoot: %v", err)
+		}
+		fmt.Println("errors when calling SquareRoot: " + err.Error())
+	}
+	if res != nil {
+		fmt.Printf("result of square root -80 is %v", res.GetNumberRoot())
+	}
+
+	res, err = c.SquareRoot(context.Background(), &greet_s.SquareRootRequest{Number: 80})
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Printf("result of square root 80 is %v", res.GetNumberRoot())
+
 }
 
 func doBiDirectionStreaming(c greet_s.GreetServiceClient) {

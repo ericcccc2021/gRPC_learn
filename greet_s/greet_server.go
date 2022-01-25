@@ -4,14 +4,28 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"io"
 	"log"
+	"math"
 	"net"
 	"playground/greet_s/greet_s"
 	"strconv"
 )
 
 type server struct{}
+
+func (s server) SquareRoot(ctx context.Context, request *greet_s.SquareRootRequest) (*greet_s.SquareRootResponse, error) {
+	number := request.GetNumber()
+	if number < 0 {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"received a negative number")
+	}
+	return &greet_s.SquareRootResponse{
+		NumberRoot: math.Sqrt(number),
+	}, nil
+}
 
 func (s server) EveryOneGreet(stream greet_s.GreetService_EveryOneGreetServer) error {
 

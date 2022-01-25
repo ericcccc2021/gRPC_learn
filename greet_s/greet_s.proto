@@ -43,6 +43,13 @@ message EveryOneGreetResponse{
   string output = 1;
 }
 
+message  SquareRootRequest {
+  double number = 1;
+}
+message SquareRootResponse {
+  double number_root = 1;
+}
+
 service GreetService{
   rpc Greet(GreetRequest)returns(GreetResponse){};
 
@@ -51,4 +58,6 @@ service GreetService{
   rpc  LongGreet(stream LongGreetRequest)returns(LongGreetResponse){};
 
   rpc EveryOneGreet(stream EveryOneGreetRequest)returns(stream EveryOneGreetResponse){};
+
+  rpc SquareRoot(SquareRootRequest)returns(SquareRootResponse){};
 }
