@@ -12,9 +12,17 @@ import (
 	"net"
 	"playground/greet_s/greet_s"
 	"strconv"
+	"time"
 )
 
 type server struct{}
+
+func (s server) GreetWithDeadLine(ctx context.Context, request *greet_s.GreetWithDeadLineRequest) (*greet_s.GreetWithDeadLineResponse, error) {
+	time.Sleep(2 * time.Second)
+	return &greet_s.GreetWithDeadLineResponse{
+		Output: "output from server",
+	}, nil
+}
 
 func (s server) SquareRoot(ctx context.Context, request *greet_s.SquareRootRequest) (*greet_s.SquareRootResponse, error) {
 	number := request.GetNumber()

@@ -26,7 +26,30 @@ func main() {
 	//doServiceStreaming(c)
 	//doClientStreaming(c)
 	//doBiDirectionStreaming(c)
-	doError(c)
+	//doError(c)
+	doGreetWithDeadline(c, 1*time.Second)
+	doGreetWithDeadline(c, 3*time.Second)
+
+}
+
+func doGreetWithDeadline(c greet_s.GreetServiceClient, timeout time.Duration) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	res, err := c.GreetWithDeadLine(ctx, &greet_s.GreetWithDeadLineRequest{Input: "greet with deadline input"})
+	if err != nil {
+		statusErr, ok := status.FromError(err)
+		if ok {
+			if statusErr.Code() == codes.DeadlineExceeded {
+				fmt.Println("deadline exceed")
+			}
+		} else {
+			fmt.Println("unexpected error", err)
+		}
+	}
+	if res != nil {
+		fmt.Println("receive res from server: " + res.GetOutput())
+	}
+
 }
 
 func doError(c greet_s.GreetServiceClient) {

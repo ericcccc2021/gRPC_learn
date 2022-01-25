@@ -50,6 +50,14 @@ message SquareRootResponse {
   double number_root = 1;
 }
 
+message GreetWithDeadLineRequest{
+  string input = 1;
+}
+
+message GreetWithDeadLineResponse{
+  string output = 1;
+}
+
 service GreetService{
   rpc Greet(GreetRequest)returns(GreetResponse){};
 
@@ -60,4 +68,6 @@ service GreetService{
   rpc EveryOneGreet(stream EveryOneGreetRequest)returns(stream EveryOneGreetResponse){};
 
   rpc SquareRoot(SquareRootRequest)returns(SquareRootResponse){};
+
+  rpc GreetWithDeadLine(GreetWithDeadLineRequest)returns(GreetWithDeadLineResponse){;}
 }
