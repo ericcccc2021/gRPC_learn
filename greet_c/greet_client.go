@@ -8,6 +8,7 @@ import (
 	"log"
 	"playground/greet_s/greet_s"
 	"strconv"
+	"time"
 )
 
 func main() {
@@ -20,9 +21,49 @@ func main() {
 	defer cnn.Close()
 
 	c := greet_s.NewGreetServiceClient(cnn)
-	doServiceStreaming(c)
-	doClientStreaming(c)
+	//doServiceStreaming(c)
+	//doClientStreaming(c)
+	doBiDirectionStreaming(c)
+}
 
+func doBiDirectionStreaming(c greet_s.GreetServiceClient) {
+	stream, err := c.EveryOneGreet(context.Background())
+	if err != nil {
+		log.Fatalf("doBiDirectionStreaming cannot connect %v", err)
+	}
+
+	waitc := make(chan struct{})
+
+	go func() {
+		for i := 0; i < 10; i++ {
+			fmt.Println("message from c to s, count " + strconv.Itoa(i))
+			err := stream.Send(&greet_s.EveryOneGreetRequest{
+				Input: "message from c to s, count " + strconv.Itoa(i),
+			})
+			if err != nil {
+				log.Fatalf("err at line 40 %v", err)
+			}
+			time.Sleep(1 * time.Second)
+		}
+		stream.CloseSend()
+	}()
+
+	go func() {
+		for {
+			res, err := stream.Recv()
+			if err == io.EOF {
+				fmt.Println("cient side get EOF error%v", err)
+				close(waitc)
+				break
+			}
+			if err != nil {
+				log.Fatalf("err at line 54 %v", err)
+			}
+			fmt.Println("received from server: " + res.GetOutput())
+		}
+	}()
+
+	<-waitc
 }
 
 func doClientStreaming(c greet_s.GreetServiceClient) {

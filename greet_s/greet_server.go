@@ -13,6 +13,30 @@ import (
 
 type server struct{}
 
+func (s server) EveryOneGreet(stream greet_s.GreetService_EveryOneGreetServer) error {
+
+	count := 0
+	for {
+		count++
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		input := req.GetInput()
+		fmt.Println("received request from client" + strconv.Itoa(count) + ": " + input)
+		err = stream.Send(&greet_s.EveryOneGreetResponse{
+			Output: "message from server to client" + strconv.Itoa(count),
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (s server) LongGreet(stream greet_s.GreetService_LongGreetServer) error {
 	allRes := ""
 	for {

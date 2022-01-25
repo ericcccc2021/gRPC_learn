@@ -35,10 +35,20 @@ message LongGreetResponse{
   string output = 1;
 }
 
+message EveryOneGreetRequest {
+  string input = 1;
+}
+
+message EveryOneGreetResponse{
+  string output = 1;
+}
+
 service GreetService{
   rpc Greet(GreetRequest)returns(GreetResponse){};
 
   rpc  GreetManyTimes(GreetManyTimesRequest)returns(stream GreetManyTimesResponse){};
 
   rpc  LongGreet(stream LongGreetRequest)returns(LongGreetResponse){};
+
+  rpc EveryOneGreet(stream EveryOneGreetRequest)returns(stream EveryOneGreetResponse){};
 }
